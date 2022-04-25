@@ -1,0 +1,5 @@
+[windows]
+gitcom-test=C:\Clouds\OneDrive\__MacWin_Sync\From_Mac_Wkspc\research\gitcom_stories\gitcom-test
+
+[mac]
+gitcom-test=/Users/yujunkong/mac_workspace/research/gitcom_stories/gitcom-test

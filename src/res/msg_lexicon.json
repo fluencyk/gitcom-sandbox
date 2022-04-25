@@ -1,0 +1,70 @@
+{
+  "verbs": {
+    "add": [
+      "add",
+      "introduce",
+      "drop in",
+      "start",
+      "sketch",
+      "wire",
+      "put together",
+      "set up"
+    ],
+    "edit": [
+      "adjust",
+      "tweak",
+      "clean up",
+      "refine",
+      "revisit",
+      "touch up",
+      "iterate on"
+    ],
+    "delete": [
+      "remove",
+      "drop",
+      "strip",
+      "clear out",
+      "get rid of"
+    ],
+    "rename": [
+      "rename",
+      "relabel",
+      "move",
+      "shift"
+    ]
+  },
+
+  "qualifiers": {
+    "early": [
+      "initial",
+      "early",
+      "first-pass",
+      "rough",
+      "baseline"
+    ],
+    "rough": [
+      "quick",
+      "rough",
+      "temporary",
+      "draft"
+    ],
+    "careful": [
+      "careful",
+      "minor",
+      "small",
+      "incremental"
+    ],
+    "neutral": [
+      ""
+    ]
+  },
+
+  "fillers": [
+    "",
+    "for now",
+    "as a start",
+    "WIP",
+    "temporarily",
+    "still rough"
+  ]
+}

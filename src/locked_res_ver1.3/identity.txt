@@ -1,0 +1,4 @@
+cat > src/res/identity.txt << 'EOF'
+username=Yujun Kong
+email=244898831@qq.com
+EOF

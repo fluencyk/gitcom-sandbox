@@ -1,0 +1,32 @@
+{
+  "README.md": "/",
+  "LICENSE": "/",
+  ".gitignore": "/",
+
+  "docs/README.md": "docs/",
+  "docs/roadmap.md": "docs/",
+  "docs/related_work.md": "docs/",
+
+  "docs/notes/note_001.md": "docs/notes/",
+  "docs/notes/note_002.md": "docs/notes/",
+  "docs/notes/note_003.md": "docs/notes/",
+
+  "src/README.md": "src/",
+
+  "src/core/engine.py": "src/core/",
+  "src/core/planner.py": "src/core/",
+  "src/core/executor.py": "src/core/",
+
+  "src/utils/helpers.py": "src/utils/",
+  "src/utils/io_utils.py": "src/utils/",
+
+  "src/experiments/exp_001.py": "src/experiments/",
+  "src/experiments/exp_002.py": "src/experiments/",
+
+  "data/README.md": "data/",
+  "data/sample_input.json": "data/",
+  "data/sample_output.json": "data/",
+
+  "scripts/setup_env.sh": "scripts/",
+  "scripts/run_demo.sh": "scripts/"
+}

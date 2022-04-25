@@ -1,0 +1,31 @@
+{
+  "git_identity": {
+    "username": "Yujun Kong",
+    "email": "244898831@qq.com"
+  },
+
+  "repo_states": {
+    "path": "/Users/yujunkong/mac_workspace/research/gitcom_stories/gitcom-test/tdd/repo_states"
+  },
+
+  "execution_repo": {
+    "path": "/Users/yujunkong/mac_workspace/research/gitcom_stories/gitcom-test/dryrun_testrepo",
+    "remote": "origin"
+  },
+
+  "time_window": {
+    "begin": "2022-04-25",
+    "end": "2022-04-27",
+    "inclusive": true
+  },
+
+  "time_injection": {
+    "timezone": "-0500",
+    "strategy": "random",
+    "hour_range": [9, 22]
+  },
+
+  "message": {
+    "default": "simulate research progress"
+  }
+}

@@ -1,0 +1,12 @@
+# latest_struct_snap
+# updated after multidays execution
+README.md
+docs/
+docs/RSCH_XP.md
+src/
+src/note_0616_v2.md
+src/note_0624.md
+src/note_0625.md
+src/note_3951.md
+src/note_4984.md
+src/note_6042.md

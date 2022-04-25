@@ -1,0 +1,68 @@
+{
+  "root_files": [
+    "README.md",
+    "LICENSE",
+    ".gitignore"
+  ],
+
+  "directories": {
+    "docs": {
+      "files": [
+        "README.md",
+        "roadmap.md",
+        "related_work.md"
+      ],
+      "subdirs": {
+        "notes": {
+          "files": [
+            "note_001.md",
+            "note_002.md",
+            "note_003.md"
+          ]
+        }
+      }
+    },
+
+    "src": {
+      "files": [
+        "README.md"
+      ],
+      "subdirs": {
+        "core": {
+          "files": [
+            "engine.py",
+            "planner.py",
+            "executor.py"
+          ]
+        },
+        "utils": {
+          "files": [
+            "helpers.py",
+            "io_utils.py"
+          ]
+        },
+        "experiments": {
+          "files": [
+            "exp_001.py",
+            "exp_002.py"
+          ]
+        }
+      }
+    },
+
+    "data": {
+      "files": [
+        "README.md",
+        "sample_input.json",
+        "sample_output.json"
+      ]
+    },
+
+    "scripts": {
+      "files": [
+        "setup_env.sh",
+        "run_demo.sh"
+      ]
+    }
+  }
+}
