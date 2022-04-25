@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 # =========================
 # Runtime mode
 # =========================
-RUN_MODE = "soft_run"
+RUN_MODE = "full_run"
 # options: "dry_run", "soft_run", "full_run"
 
 # =========================
@@ -112,5 +112,5 @@ def simulate(start_date, end_date):
 if __name__ == "__main__":
     simulate(
         start_date="2022-04-25",
-        end_date="2022-04-27"
+        end_date="2022-04-25"
     )
