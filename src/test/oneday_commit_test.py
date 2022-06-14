@@ -27,6 +27,25 @@ def report(msg: str):
 
 
 # ----------------------------
+# snap writer (oneday responsibility)
+# ----------------------------
+def dump_latest_snap(curr_files):
+    """
+    Write current structural snapshot to src/res/latest_struct_snap.txt
+    """
+    res_dir = SRC_ROOT / "res"
+    res_dir.mkdir(parents=True, exist_ok=True)
+
+    snap_path = res_dir / "latest_struct_snap.txt"
+    snap_path.write_text(
+        "\n".join(sorted(curr_files)),
+        encoding="utf-8",
+    )
+
+    report(f"[snap] written to {snap_path}")
+
+
+# ----------------------------
 # oneday runner
 # ----------------------------
 def run_oneday_commit(
@@ -34,21 +53,6 @@ def run_oneday_commit(
     message: str,
     allowed_emails=None,
 ):
-    """
-    oneday (improved & locked version)
-
-    Responsibilities:
-    - identity validation
-    - time injection
-    - anti-time-paradox validation
-    - orchestration of add / rename / delete
-    - real git commit & push
-
-    NOTE:
-    - all reporting stays here
-    - no logic leakage into mod / core
-    """
-
     report("=== oneday start ===")
 
     # --- identity ---
@@ -60,89 +64,39 @@ def run_oneday_commit(
     inject(date_str)
     report(f"[time] injected: {date_str}")
 
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = SRC_ROOT.parent
 
     # --- anti paradox mechanism ---
     anti = AntiTimeDox(curr_files=[])
     report("[anti_timedox] initialized (empty curr_files)")
 
     # ==================================================
-    # Round 1: rename → delete → add
+    # Day behavior (kept simple on purpose)
     # ==================================================
-    report("\n[Round 1] rename → delete → add")
+    report("\n[actions] add / rename / delete")
 
-    if anti.check_rename("a.txt", "b.txt"):
-        file_rename(repo_root, "a.txt", "b.txt")
-        anti.apply_rename("a.txt", "b.txt")
+    # add
+    if anti.check_add("sandbox/day_2022_06_14.txt"):
+        file_add(
+            repo_root,
+            "sandbox/day_2022_06_14.txt",
+            "generated on 2022-06-14\n",
+        )
+        anti.apply_add("sandbox/day_2022_06_14.txt")
     else:
         report("Paradox happened!")
 
-    if anti.check_delete("b.txt"):
-        file_delete(repo_root, "b.txt")
-        anti.apply_delete("b.txt")
+    # rename (intentional failure-safe example)
+    if anti.check_rename("sandbox/x.txt", "sandbox/y.txt"):
+        file_rename(repo_root, "sandbox/x.txt", "sandbox/y.txt")
+        anti.apply_rename("sandbox/x.txt", "sandbox/y.txt")
     else:
         report("Paradox happened!")
 
-    if anti.check_add("sandbox/a.txt"):
-        file_add(repo_root, "sandbox/a.txt", "init a\n")
-        anti.apply_add("sandbox/a.txt")
-    else:
-        report("Paradox happened!")
-
-    # ==================================================
-    # Round 2: delete → add → rename
-    # ==================================================
-    report("\n[Round 2] delete → add → rename")
-
-    if anti.check_delete("c.txt"):
-        file_delete(repo_root, "c.txt")
-        anti.apply_delete("c.txt")
-    else:
-        report("Paradox happened!")
-
-    if anti.check_add("sandbox/c.txt"):
-        file_add(repo_root, "sandbox/c.txt", "init c\n")
-        anti.apply_add("sandbox/c.txt")
-    else:
-        report("Paradox happened!")
-
-    if anti.check_rename("sandbox/c.txt", "sandbox/d.txt"):
-        file_rename(repo_root, "sandbox/c.txt", "sandbox/d.txt")
-        anti.apply_rename("sandbox/c.txt", "sandbox/d.txt")
-    else:
-        report("Paradox happened!")
-
-    # ==================================================
-    # Round 3: add → add
-    # ==================================================
-    report("\n[Round 3] add → add")
-
-    ok = True
-    for name in ["sandbox/x.txt", "sandbox/y.txt"]:
-        if anti.check_add(name):
-            file_add(repo_root, name, f"init {name}\n")
-            anti.apply_add(name)
-        else:
-            report("Paradox happened!")
-            ok = False
-
-    if ok:
-        report("Okay, passed!")
-
-    # ==================================================
-    # Round 4: rename → delete
-    # ==================================================
-    report("\n[Round 4] rename → delete")
-
-    if anti.check_rename("sandbox/x.txt", "sandbox/z.txt"):
-        file_rename(repo_root, "sandbox/x.txt", "sandbox/z.txt")
-        anti.apply_rename("sandbox/x.txt", "sandbox/z.txt")
-    else:
-        report("Paradox happened!")
-
-    if anti.check_delete("sandbox/z.txt"):
-        file_delete(repo_root, "sandbox/z.txt")
-        anti.apply_delete("sandbox/z.txt")
+    # delete (intentional failure-safe example)
+    if anti.check_delete("sandbox/y.txt"):
+        file_delete(repo_root, "sandbox/y.txt")
+        anti.apply_delete("sandbox/y.txt")
     else:
         report("Paradox happened!")
 
@@ -152,7 +106,7 @@ def run_oneday_commit(
     def git(cmd):
         subprocess.check_call(cmd, cwd=repo_root)
 
-    report("\n[git] staging changes")
+    report("\n[git] staging")
     git(["git", "add", "-A"])
 
     report("[git] committing")
@@ -160,6 +114,11 @@ def run_oneday_commit(
 
     report("[git] pushing")
     git_push(repo_root)
+
+    # ==================================================
+    # dump structural snapshot
+    # ==================================================
+    dump_latest_snap(anti.curr_files)
 
     report("=== oneday done ===")
 
@@ -169,7 +128,7 @@ def run_oneday_commit(
 # ----------------------------
 if __name__ == "__main__":
     run_oneday_commit(
-        date_str="2022-06-13 12:00:00 -0500",
-        message="noise: oneday multi-action anti-paradox run (2022-06-13)",
+        date_str="2022-06-14 12:00:00 -0500",
+        message="noise: oneday snapshot generation (2022-06-14)",
         allowed_emails={"244898831@qq.com"},
     )
