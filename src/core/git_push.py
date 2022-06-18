@@ -1,5 +1,3 @@
-# src/core/git_push.py
-
 import subprocess
 from pathlib import Path
 
@@ -11,7 +9,6 @@ def git_push(repo_root: Path):
     - 不关心时间 / 身份
     - 不关心 branch（使用当前）
     """
-
     subprocess.check_call(
         ["git", "push"],
         cwd=repo_root,

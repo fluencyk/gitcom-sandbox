@@ -2,28 +2,66 @@
 
 class AntiTimeDox:
     """
-    Anti Time Paradox Mechanism
-    维护并校验当前“存在态”的合法性
+    AntiTimeDox (planning mode)
+
+    Role:
+    - Structural feasibility checker
+    - Stateless with respect to ownership of structure
     """
 
-    def __init__(self, curr_files=None):
-        self.curr_files = list(curr_files) if curr_files else []
+    def can_apply(self, action: str, struct_state: list) -> bool:
+        if action == "add":
+            return True
 
-    def check_add(self, name: str) -> bool:
-        return name not in self.curr_files
+        if action in ("rename", "delete"):
+            if not struct_state:
+                return False
 
-    def check_rename(self, old: str, new: str) -> bool:
-        return old in self.curr_files and new not in self.curr_files
+            # ✨ 新增：保护规则
+            candidate = struct_state[-1]
 
-    def check_delete(self, name: str) -> bool:
-        return name in self.curr_files
+            # 不删 README
+            if candidate == "README.md":
+                return False
 
-    def apply_add(self, name: str):
-        self.curr_files.append(name)
+            # 不删目录占位
+            if candidate.endswith("/"):
+                return False
 
-    def apply_rename(self, old: str, new: str):
-        self.curr_files.remove(old)
-        self.curr_files.append(new)
+            return True
 
-    def apply_delete(self, name: str):
-        self.curr_files.remove(name)
+        return False
+
+
+    def apply_virtual(self, action: str, struct_state: list) -> list:
+        """
+        Apply an action virtually and return a NEW structure state.
+
+        NOTE:
+        - This does NOT mutate input struct_state.
+        - Caller (beh_layout) owns the returned state.
+
+        Parameters
+        ----------
+        action : str
+        struct_state : list
+
+        Returns
+        -------
+        list
+            Updated structure state
+        """
+        new_state = list(struct_state)
+
+        if action == "add":
+            new_state.append(f"file_{len(new_state)+1}.txt")
+
+        elif action == "rename":
+            # rename last file (simplest deterministic choice)
+            old = new_state.pop()
+            new_state.append(f"renamed_{old}")
+
+        elif action == "delete":
+            new_state.pop()
+
+        return new_state

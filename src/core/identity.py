@@ -1,5 +1,3 @@
-# src/core/identity.py
-
 import subprocess
 
 
@@ -13,7 +11,7 @@ def _git_config(key: str) -> str:
         return ""
 
 
-def assert_identity(allowed_emails=None):
+def assert_identity(allowed_emails=None, report=None):
     """
     最小身份校验：
     - 必须存在 user.name
@@ -22,6 +20,10 @@ def assert_identity(allowed_emails=None):
     """
     name = _git_config("user.name")
     email = _git_config("user.email")
+
+    if report:
+        report(f"[identity] name = {name}")
+        report(f"[identity] email = {email}")
 
     if not name or not email:
         raise RuntimeError("Git identity missing: user.name or user.email")
