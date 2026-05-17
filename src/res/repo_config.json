@@ -14,8 +14,8 @@
   },
 
   "time_window": {
-    "begin": "2022-04-25",
-    "end": "2022-04-27",
+    "begin": "2022-04-26",
+    "end": "2022-04-26",
     "inclusive": true
   },
 
@@ -26,6 +26,7 @@
   },
 
   "message": {
-    "default": "simulate research progress"
+  "human_said_path": "/Users/yujunkong/mac_workspace/research/gitcom_stories/gitcom-test/tdd/repo_states/each_commit_msg.json",
+  "allow_silent": true
   }
 }

@@ -1,116 +1,145 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+Simulator main entry (Dry Run / Real Run compatible)
+
+Message semantics (NEW WORLD):
+- No default message
+- Message ONLY comes from prepared resource (human_said_path)
+- Missing message == SILENT (allowed)
+"""
+
 import os
-import subprocess
 import json
-from datetime import datetime, timedelta, timezone
+import subprocess
+from pathlib import Path
+from datetime import datetime, timedelta
+import random
 
-# =========================
-# Runtime mode
-# =========================
-RUN_MODE = "full_run"
-# options: "dry_run", "soft_run", "full_run"
+# ============================================================
+# Load repo_config.json
+# ============================================================
 
-# =========================
-# Paths
-# =========================
+BASE_DIR = Path(__file__).resolve().parents[2]   # gitcom_sandbox/
+CONFIG_PATH = BASE_DIR / "src" / "res" / "repo_config.json"
 
-CORE_DIR = os.path.dirname(os.path.abspath(__file__))
-RES_DIR = os.path.join(os.path.dirname(CORE_DIR), "res")
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    CONFIG = json.load(f)
 
-# =========================
-# Message system
-# =========================
+# ============================================================
+# Basic config
+# ============================================================
 
-from msg.msg_selector import MsgSelector
+EXEC_REPO = Path(CONFIG["execution_repo"]["path"])
+REPO_STATES = Path(CONFIG["repo_states"]["path"])
 
-with open(os.path.join(RES_DIR, "msg_lexicon.json"), "r", encoding="utf-8") as f:
-    LEXICON = json.load(f)
+TIME_BEGIN = datetime.strptime(CONFIG["time_window"]["begin"], "%Y-%m-%d")
+TIME_END = datetime.strptime(CONFIG["time_window"]["end"], "%Y-%m-%d")
+INCLUSIVE = CONFIG["time_window"].get("inclusive", True)
 
-MSG_SELECTOR = MsgSelector(LEXICON)
+TIMEZONE = CONFIG["time_injection"]["timezone"]
+HOUR_RANGE = CONFIG["time_injection"]["hour_range"]
 
-TIMELINE_CTX = {
-    "phase_type": "bootstrap",
-    "tempo": "steady",
-    "self_assessment": "early but promising"
-}
+# ============================================================
+# Message config (NEW)
+# ============================================================
 
-# =========================
-# Git helpers
-# =========================
+msg_cfg = CONFIG.get("message", {})
+human_said_path = msg_cfg.get("human_said_path")
+allow_silent = msg_cfg.get("allow_silent", False)
 
-REMOTE = "origin"
+HUMAN_SAID_MAP = {}
+
+if human_said_path:
+    msg_path = Path(human_said_path)
+    if msg_path.exists():
+        with open(msg_path, "r", encoding="utf-8") as f:
+            HUMAN_SAID_MAP = json.load(f)
+
+# ============================================================
+# Utils
+# ============================================================
+
+def iter_days(start, end, inclusive=True):
+    curr = start
+    last = end if inclusive else end - timedelta(days=1)
+    while curr <= last:
+        yield curr
+        curr += timedelta(days=1)
 
 
-def run(cmd):
-    subprocess.run(cmd, check=True)
+def inject_time(day):
+    hour = random.randint(HOUR_RANGE[0], HOUR_RANGE[1])
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+    return f"{day.strftime('%Y-%m-%d')} {hour:02d}:{minute:02d}:{second:02d} {TIMEZONE}"
 
 
-def inject_commit_time(day):
-    dt = datetime.strptime(day, "%Y-%m-%d")
-    return dt.replace(
-        hour=12, minute=0, second=0,
-        tzinfo=timezone.utc
-    ).isoformat()
+def git(cmd, cwd):
+    subprocess.run(cmd, cwd=cwd, check=True)
 
 
-# =========================
+# ============================================================
 # Core simulation
-# =========================
+# ============================================================
 
-def simulate(start_date, end_date):
-    day = datetime.strptime(start_date, "%Y-%m-%d")
-    end = datetime.strptime(end_date, "%Y-%m-%d")
-    delta = timedelta(days=1)
+def simulate_day(day):
+    date_str = day.strftime("%Y-%m-%d")
 
-    while day <= end:
-        day_str = day.strftime("%Y-%m-%d")
+    # ---------------------------
+    # Message selection (ONLY HERE)
+    # ---------------------------
+    commit_msg = None  # SILENT by default
 
-        # -------------------------
-        # Example action
-        # (replace with real action logic)
-        # -------------------------
-        action = {
-            "action_type": "edit",
-            "target": "README.md"
-        }
+    if HUMAN_SAID_MAP:
+        commit_msg = HUMAN_SAID_MAP.get(date_str)
 
-        # -------------------------
-        # Generate commit message
-        # -------------------------
-        commit_msg = MSG_SELECTOR.generate(action, TIMELINE_CTX)
-        commit_time = inject_commit_time(day_str)
+    # ---------------------------
+    # Dummy file touch (example)
+    # ---------------------------
+    dummy_file = EXEC_REPO / "README.md"
+    if not dummy_file.exists():
+        dummy_file.write_text("# Dry Run Repo\n", encoding="utf-8")
+    else:
+        dummy_file.write_text(
+            dummy_file.read_text(encoding="utf-8") + f"\nupdate {date_str}\n",
+            encoding="utf-8"
+        )
 
-        print(f"\n[{day_str}] {commit_msg}")
+    git(["git", "add", "."], cwd=EXEC_REPO)
 
-        if RUN_MODE == "dry_run":
-            print("  [DRY-RUN] skip commit & push")
+    injected_time = inject_time(day)
 
-        else:
-            run(["git", "add", "-A"])
+    # ---------------------------
+    # Commit execution
+    # ---------------------------
+    if commit_msg is None:
+        if not allow_silent:
+            raise RuntimeError(f"SILENT commit not allowed: {date_str}")
 
-            run([
-                "git", "commit",
-                "--allow-empty",
-                "-m", commit_msg,
-                "--date", commit_time
-            ])
-
-            if RUN_MODE == "full_run":
-                run(["git", "push", REMOTE, "main"])
-            else:
-                print("  [SOFT-RUN] commit created locally, push skipped")
-
-        day += delta
+        git(
+            ["git", "commit", "--allow-empty-message", "-m", "", "--date", injected_time],
+            cwd=EXEC_REPO
+        )
+    else:
+        git(
+            ["git", "commit", "-m", commit_msg, "--date", injected_time],
+            cwd=EXEC_REPO
+        )
 
 
-# =========================
+def simulate():
+    os.chdir(EXEC_REPO)
+
+    for day in iter_days(TIME_BEGIN, TIME_END, INCLUSIVE):
+        print(f"\n=== Simulating {day.strftime('%Y-%m-%d')} ===")
+        simulate_day(day)
+
+
+# ============================================================
 # Entry
-# =========================
+# ============================================================
 
 if __name__ == "__main__":
-    simulate(
-        start_date="2022-04-25",
-        end_date="2022-04-25"
-    )
+    simulate()

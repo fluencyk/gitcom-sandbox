@@ -7,7 +7,29 @@ import subprocess
 import json
 import random
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
+import json
+from pathlib import Path
+
+# ------------------ Load Config ------------------
+
+BASE_DIR = Path(__file__).resolve().parents[2]  # gitcom_sandbox/
+CONFIG_PATH = BASE_DIR / "src" / "res" / "repo_config.json"
+
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    CONFIG = json.load(f)
+
+HUMAN_SAID_MAP = None
+
+msg_cfg = CONFIG.get("message", {})
+human_said_path = msg_cfg.get("human_said_path")
+
+if human_said_path:
+    msg_path = Path(human_said_path).expanduser()
+    if msg_path.exists():
+        with open(msg_path, "r", encoding="utf-8") as f:
+            HUMAN_SAID_MAP = json.load(f)
 
 # =========================
 # Load config
