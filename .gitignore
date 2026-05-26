@@ -1,7 +1,23 @@
+# GitCom Project - Industrial‑Grade Minimal Git Ignore
+# Strictly filters runtime junk/cache only, keeps all source code & versioned assets
+
+# Python compiled cache artifacts
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.venv/
-venv-*/
+*.py[cod]
+
+# Temporary backup & runtime scratch files
+*bkp*
+*.temp
+*.tmp
+
+# macOS system junk & editor artifacts
 .DS_Store
+.vscode/
+.idea/
+
+# Auto‑generated runtime state snapshots
+latest_struct_snap.txt
+planned_temp_commit.txt
+
+# Log files & debug outputs
+*.log
